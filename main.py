@@ -25,12 +25,16 @@ landings = pygame.sprite.Group()
 background_mountain = BackgroundMountains(height, all_sprites)
 mountain = Mountain(height, all_sprites)
 
-while True:
+while True:  # whole cycle is temporary
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            Landing(event.pos, SPEED_OF_LANDING, all_sprites, landings)
+            if pygame.mouse.get_pressed()[0]:  # Right click
+                Landing(event.pos, SPEED_OF_LANDING, all_sprites, landings)
+            elif pygame.mouse.get_pressed()[2]:  # Left click
+                for landing in landings:
+                    landing.dead()
         elif event.type == UPDATE_MOVEMENTS:
             landings.update(mountain, width)
     screen.fill((60, 100, 150))
