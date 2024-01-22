@@ -14,7 +14,7 @@ class StartScreenSprite(pygame.sprite.Sprite):
 
     def __init__(self, *groups):
         super().__init__(*groups)
-        self.image = pygame.transform.scale(StartScreenSprite.image, (300, 300))
+        self.image = pygame.transform.scale(StartScreenSprite.image, (533, 300))
         self.rect = self.image.get_rect()
 
 
