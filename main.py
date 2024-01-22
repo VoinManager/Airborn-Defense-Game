@@ -4,13 +4,17 @@ from Mountains import *
 from Functions import *
 
 
-speed_of_landing = 2  # pixels per frames
-FPS = 60  # frames per second
-UPS = 15  # updates (animations) per second
+with open('config.txt', mode='rt', encoding='UTF-8') as config:
+    for line in config.readlines():
+        name, value = line.split('=')[0].split()[0].strip(), int(line.split('=')[1].split()[0].strip())
+        if name == 'FPS':
+            FPS = value
+        elif name == 'UPS':
+            UPS = value
 
 
 class StartScreenSprite(pygame.sprite.Sprite):
-    image = load_image('start screen.png')
+    image = load_image('background picture.png')
 
     def __init__(self, *groups):
         super().__init__(*groups)
@@ -90,6 +94,8 @@ def end_screen(score: int, win=False):
 
 def main():
     start_screen()
+
+    speed_of_landing = 2  # pixels per frames
 
     size = width, height = 800, 500
     pygame.init()
