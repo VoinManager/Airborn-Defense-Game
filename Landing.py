@@ -45,10 +45,16 @@ class Landing(pygame.sprite.Sprite):
             self.y += self.y_velocity
             self.rect.y = self.y
 
-            if self.x_velocity + self.x_acceleration <= 0:
-                self.x_velocity = 0
+            if self.x_velocity >= 0:
+                if self.x_velocity + self.x_acceleration <= 0:
+                    self.x_velocity = 0
+                else:
+                    self.x_velocity += self.x_acceleration
             else:
-                self.x_velocity += self.x_acceleration
+                if self.x_velocity + self.x_acceleration > 0:
+                    self.x_velocity = 0
+                else:
+                    self.x_velocity += self.x_acceleration
 
             if self.y_velocity + self.y_acceleration >= 5:
                 self.y_velocity = 5
@@ -77,7 +83,7 @@ class Landing(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.y += 32  # depends on sprites
         self.rect.y = self.y
-        self.x_acceleration = -0.01
+        self.x_acceleration = -0.01 if self.x_velocity >= 0 else 0.01
         self.y_acceleration = 0.1
         self.is_dead = True
 
