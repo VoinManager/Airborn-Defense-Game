@@ -1,58 +1,78 @@
 from Landing import *
-from Background_mountains import *
+from BackgroundMountains import *
 from Mountains import *
 from Functions import *
+
+
+speed_of_landing = 2  # pixels per frames
+FPS = 60  # frames per second
+UPS = 15  # updates (animations) per second
+
+
+class StartScreenSprite(pygame.sprite.Sprite):
+    image = load_image('start screen.png')
+
+    def __init__(self, *groups):
+        super().__init__(*groups)
+        self.image = pygame.transform.scale(StartScreenSprite.image, (300, 300))
+        self.rect = self.image.get_rect()
+
+
 pygame.quit()
 
 
 def start_screen():
     screen = pygame.display.set_mode((300, 300))
+    clock = pygame.time.Clock()
 
-    screen.fill('white')
+    sprites = pygame.sprite.Group()
+    StartScreenSprite(sprites)
+    sprites.draw(screen)
+
     pygame.font.init()
     font = pygame.font.Font(None, 50)
 
     string_rendered = font.render('Play', 1, pygame.Color('black'))
     font_rect = string_rendered.get_rect()
     font_rect.left = 115
-    font_rect.top = 115
+    font_rect.top = 35
     screen.blit(string_rendered, font_rect)
-
-    # string_rendered = font.render('Settings', 1, pygame.Color('black'))
-    # font_rect = string_rendered.get_rect()
-    # font_rect.top = 260
-    # screen.blit(string_rendered, font_rect)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if pygame.Rect((115, 115, 75, 35)).collidepoint(event.pos):
+                if pygame.Rect((115, 35, 75, 35)).collidepoint(event.pos):
                     pygame.quit()
                     return
+        sprites.draw(screen)
+        screen.blit(string_rendered, font_rect)
         pygame.display.flip()
+        clock.tick(FPS)
 
 
 def end_screen(score: int, win=False):
     screen = pygame.display.set_mode((300, 300))
+    clock = pygame.time.Clock()
 
-    screen.fill('white')
+    sprites = pygame.sprite.Group()
+    StartScreenSprite(sprites)
+    sprites.draw(screen)
+
     pygame.font.init()
     font = pygame.font.Font(None, 50)
 
     text = 'You win' if win else 'You lose'
-    string_rendered = font.render(text, 1, pygame.Color('black'))
-    font_rect = string_rendered.get_rect()
-    font_rect.left = 80
-    font_rect.top = 50
-    screen.blit(string_rendered, font_rect)
+    first_string_rendered = font.render(text, 1, pygame.Color('black'))
+    first_font_rect = first_string_rendered.get_rect()
+    first_font_rect.left = 80
+    first_font_rect.top = 50
 
-    string_rendered = font.render(f'Your score: {score}', 1, pygame.Color('black'))
-    font_rect = string_rendered.get_rect()
-    font_rect.left = 45 - (7.5 * len(str(score)))
-    font_rect.top = 150
-    screen.blit(string_rendered, font_rect)
+    second_string_rendered = font.render(f'Your score: {score}', 1, pygame.Color('black'))
+    second_font_rect = second_string_rendered.get_rect()
+    second_font_rect.left = 45 - (7.5 * len(str(score)))
+    second_font_rect.top = 150
 
     while True:
         for event in pygame.event.get():
@@ -61,17 +81,17 @@ def end_screen(score: int, win=False):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.quit()
                 return
+        sprites.draw(screen)
+        screen.blit(first_string_rendered, first_font_rect)
+        screen.blit(second_string_rendered, second_font_rect)
         pygame.display.flip()
+        clock.tick(FPS)
 
 
 def main():
     start_screen()
 
     size = width, height = 800, 500
-    speed_of_landing = 2  # pixels per frames
-    FPS = 60  # frames per second
-    UPS = 15  # updates (animations) per second
-    clock = pygame.time.Clock()
     pygame.init()
     screen = pygame.display.set_mode(size)
     UPDATE_MOVEMENTS = pygame.USEREVENT + 1
