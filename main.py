@@ -13,11 +13,14 @@ pygame.quit()
 size = width, height = 800, 500
 SPEED_OF_LANDING = 2  # pixels per frames
 FPS = 60  # frames per second
+UPS = 15  # updates (animations) per second
 clock = pygame.time.Clock()
 pygame.init()
 screen = pygame.display.set_mode(size)
 UPDATE_MOVEMENTS = pygame.USEREVENT + 1
+UPDATE_ANIMATIONS = pygame.USEREVENT + 2
 pygame.time.set_timer(UPDATE_MOVEMENTS, 1000//FPS)
+pygame.time.set_timer(UPDATE_ANIMATIONS, 1000//UPS)
 
 
 all_sprites = pygame.sprite.Group()
@@ -37,6 +40,9 @@ while True:  # whole cycle is temporary
                     landing.dead()
         elif event.type == UPDATE_MOVEMENTS:
             landings.update(mountain, width)
+        elif event.type == UPDATE_ANIMATIONS:
+            for landing in landings:
+                landing.update_animation()
     screen.fill((60, 100, 150))
     all_sprites.draw(screen)
     pygame.display.flip()

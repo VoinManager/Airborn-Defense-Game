@@ -5,12 +5,16 @@ from Functions import load_image
 
 class Landing(pygame.sprite.Sprite):
     image = load_image('landing.png', colorkey=-1)
-    death_image = load_image('dead landing.png', colorkey=-1)
+    # death_image = load_image('dead landing.png', colorkey=-1)
+    sheet = load_image('animated death landing.png', colorkey=-1)
 
     def __init__(self, pos, speed_of_landing, *groups):
         super().__init__(*groups)
 
         self.is_dead = False
+        self.frames = []
+        self.cut_sheet(Landing.sheet, 3, 1)
+        self.current_frame = 0
         self.image = Landing.image
         self.rect = self.image.get_rect()
         self.rect.x = self.x = pos[0]  # self.x can be a float, but self.rect.x is not
@@ -20,6 +24,13 @@ class Landing(pygame.sprite.Sprite):
         self.y_velocity = speed_of_landing
         self.y_acceleration = 0
         self.x_acceleration = 0
+
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
 
     def update(self, mountain_group, window_width):
         if pygame.sprite.collide_mask(self, mountain_group):
@@ -52,10 +63,15 @@ class Landing(pygame.sprite.Sprite):
             self.y += self.y_velocity
             self.rect.y = self.y
 
+    def update_animation(self):
+        if self.is_dead:
+            self.current_frame = (self.current_frame + 1) % len(self.frames)
+            self.image = self.frames[self.current_frame]
+
     def dead(self):
         if self.is_dead:
             return
-        self.image = Landing.death_image
+        self.image = self.frames[self.current_frame]
         self.rect = self.image.get_rect()
         self.x += 19  # depends on sprites
         self.rect.x = self.x
