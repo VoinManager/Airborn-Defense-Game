@@ -1,6 +1,7 @@
 import pygame
 import random
 from Functions import load_image
+import scheckik
 
 
 class Landing(pygame.sprite.Sprite):
@@ -24,6 +25,7 @@ class Landing(pygame.sprite.Sprite):
         self.y_velocity = speed_of_landing
         self.y_acceleration = 0
         self.x_acceleration = 0
+        self.upale = False
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
@@ -38,6 +40,7 @@ class Landing(pygame.sprite.Sprite):
                 self.kill()
             else:
                 self.landing()
+                scheckik.down += 1
 
         elif self.is_dead:
             self.x += self.x_velocity
@@ -89,3 +92,14 @@ class Landing(pygame.sprite.Sprite):
 
     def landing(self):
         self.kill()  # temporary
+
+
+
+    def get_x_y(self):
+        return (self.x, self.y)
+    
+    def up_strike(self, c_pos):
+        if self.rect.collidepoint(c_pos):
+            self.dead()
+            return True
+        return False
