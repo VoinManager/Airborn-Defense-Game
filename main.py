@@ -1,3 +1,5 @@
+import pygame.mixer
+
 from Landing import *
 from BackgroundMountains import *
 from Mountains import *
@@ -6,7 +8,6 @@ from Gun import *
 import scheckik
 
 import time
-
 
 
 with open('config.txt', mode='rt', encoding='UTF-8') as config:
@@ -32,7 +33,7 @@ pygame.quit()
 
 def random_pos(w):
     x = random.randint(10, w - 20)
-    return (x, 10)
+    return x, 10
 
 
 def start_screen():
@@ -103,7 +104,8 @@ def end_screen_win(score: int, win=False):
         pygame.display.flip()
         clock.tick(FPS)
 
-def end_screen_Lose(score: int, win=False):
+
+def end_screen_lose(score: int, win=False):
     screen = pygame.display.set_mode((300, 300))
     clock = pygame.time.Clock()
 
@@ -141,7 +143,8 @@ def end_screen_Lose(score: int, win=False):
 
 
 def main():
-    pygame.font.init() 
+    pygame.font.init()
+    pygame.mixer.init()
 
     start_screen()
 
@@ -157,16 +160,15 @@ def main():
 
     all_sprites = pygame.sprite.Group()
     landings = pygame.sprite.Group()
-    background_mountain = BackgroundMountains(height, all_sprites)
+    BackgroundMountains(height, all_sprites)
     mountain = Mountain(height, all_sprites)
 
     gun1 = Gun(145-64, 394-64, all_sprites)
     gun2 = ""
 
+    wait_spawn = [0.8, 0.9, 1, 1.2, 1.3, 1.5, 1.7, 2.5, 0.7,]
 
-    wait_sapwn = [0.8, 0.9, 1, 1.2, 1.3, 1.5, 1.7, 2.5, 0.7,]
-
-    perezarydka = 5
+    reload = 5
     patron = 5
     heart = 10
     kills = 0
@@ -177,45 +179,50 @@ def main():
     pygame.font.init()
     font = pygame.font.Font(None, 50)
 
+    timing = time.time()
 
-    timing = time.time(); 
-
-    perez1 = time.time(); 
-    perez2 = time.time(); 
+    perez1 = time.time()
+    perez2 = time.time()
 
     first_press = True
-    secend_press = False
+    second_press = False
 
     first_perez = False
-    secend_perez = False
+    second_perez = False
     sche = scheckik.down
 
     poyav = False
 
-    while True:  # whole cycle is temporary
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if pygame.mouse.get_pressed()[0]:  # сюда музло
-                    if (first_press == True and first_perez == False) or (secend_press == True and secend_perez == False):
+                if pygame.mouse.get_pressed()[0]:
+                    sound = pygame.mixer.Sound('music/boom.mp3')
+                    sound.play()
+
+                    if (first_press and not first_perez) or (second_press and not second_perez):
                         for landing in landings:
-                            if landing.up_strike(event.pos) == True:
+                            if landing.up_strike(event.pos):
                                 kills_d += 1
                                 kills += 1
                         patron -= 1
-            elif event.type == pygame.KEYDOWN:  #сюда музло
+            elif event.type == pygame.KEYDOWN:
+                sound = pygame.mixer.Sound('music/perecl.mp3')
+                sound.play()
+
                 if event.key == pygame.K_1:
-                    if secend_press == True:
-                        if first_perez == False:
+                    if second_press:
+                        if not first_perez:
                             first_press = True
-                            secend_press = False
+                            second_press = False
                 elif event.key == pygame.K_2:
-                    if first_press == True and poyav:
-                        if secend_perez == False:
-                            secend_press = True
+                    if first_press and poyav:
+                        if not second_perez:
+                            second_press = True
                             first_press = False
-            elif time.time() - timing > random.choice(wait_sapwn):
+            elif time.time() - timing > random.choice(wait_spawn):
                 timing = time.time()
                 Landing(random_pos(width), speed_of_landing, all_sprites, landings)
             elif event.type == UPDATE_MOVEMENTS:
@@ -225,23 +232,22 @@ def main():
                     landing.update_animation()
 
         if patron <= 0:
-            if first_press == True:
+            if first_press:
                 first_perez = True
             else:
-                secend_perez = True
+                second_perez = True
 
-        if first_perez == True:
-            if time.time() - perez1 > perezarydka:
+        if first_perez:
+            if time.time() - perez1 > reload:
                 perez1 = time.time()
                 first_perez = False
                 patron = 10
 
-        if secend_perez == True:
-            if time.time() - perez2 > perezarydka:
+        if second_perez:
+            if time.time() - perez2 > reload:
                 perez2 = time.time()
-                secend_perez = False
+                second_perez = False
                 patron = 10
-        
 
         if sche < scheckik.down:
             heart -= abs(scheckik.down - sche)
@@ -252,20 +258,18 @@ def main():
             patron = 10
             kills = 0
             if level == 3 and not is_pushka2:
-                perezarydka = 5
+                reload = 5
                 gun2 = Gun(364-64, 371-64, all_sprites)
                 poyav = True
             elif level == 4:
-                perezarydka = 18
-            
-        
+                reload = 18
+
         if level == 6:
             end_screen_win(kills_d, True)
 
         if heart <= 0:
-            end_screen_Lose(kills_d, False)
+            end_screen_lose(kills_d, False)
 
-                    
         screen.fill((60, 100, 150))
 
         string_rendered = font.render(f'level: {level}', 1, pygame.Color('black'))
@@ -292,7 +296,7 @@ def main():
         font_rect.top = 0
         screen.blit(string_rendered, font_rect)
 
-        if first_press == True:
+        if first_press:
             string_rendered = font.render(f'taken: first weapon', 1, pygame.Color('black'))
             font_rect = string_rendered.get_rect()
             font_rect.left = 0
@@ -304,25 +308,25 @@ def main():
             font_rect.top = 55
         screen.blit(string_rendered, font_rect)
 
-        if first_perez == False and secend_perez == False:
+        if not first_perez and not second_perez:
             string_rendered = font.render(f'recharging: ---', 1, pygame.Color('black'))
             font_rect = string_rendered.get_rect()
             font_rect.left = 450
             font_rect.top = 55
 
-        if first_perez == True and secend_perez == True:
+        if first_perez and second_perez:
             string_rendered = font.render(f'recharging: all', 1, pygame.Color('black'))
             font_rect = string_rendered.get_rect()
             font_rect.left = 450
             font_rect.top = 55
 
-        if first_perez == True and secend_perez == False:
-            string_rendered = font.render(f'recharging: firts', 1, pygame.Color('black'))
+        if first_perez and not second_perez:
+            string_rendered = font.render(f'recharging: first', 1, pygame.Color('black'))
             font_rect = string_rendered.get_rect()
             font_rect.left = 450
             font_rect.top = 55
 
-        if first_perez == False and secend_perez == True:
+        if not first_perez and second_perez:
             string_rendered = font.render(f'recharging: second', 1, pygame.Color('black'))
             font_rect = string_rendered.get_rect()
             font_rect.left = 450
