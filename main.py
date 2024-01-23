@@ -5,11 +5,11 @@ from Functions import *
 from Gun import *
 import scheckik
 
-from playsound import playsound
+# from playsound import playsound
 
 import time
 
-playsound('/home/svatoslav/Downloads/lycyy/music/base.mp3', False)
+# playsound('/home/svatoslav/Downloads/lycyy/music/base.mp3', False)
 with open('config.txt', mode='rt', encoding='UTF-8') as config:
     for line in config.readlines():
         name, value = line.split('=')[0].split()[0].strip(), int(line.split('=')[1].split()[0].strip())
@@ -192,8 +192,8 @@ def main():
     sche = scheckik.down
 
     poyav = False
-    s = pygame.mixer.Sound("/home/svatoslav/Downloads/lycyy/music/boom.ogg")
-    pre = pygame.mixer.Sound("/home/svatoslav/Downloads/lycyy/music/perecl.ogg")
+    # s = pygame.mixer.Sound("/home/svatoslav/Downloads/lycyy/music/boom.ogg")
+    # pre = pygame.mixer.Sound("/home/svatoslav/Downloads/lycyy/music/perecl.ogg")
 
 
     while True:  # whole cycle is temporary
@@ -208,9 +208,9 @@ def main():
                                 kills_d += 1
                                 kills += 1
                         patron -= 1
-                        s.play()
+                        # s.play()
             elif event.type == pygame.KEYDOWN:  #сюда музло
-                pre.play()
+                # pre.play()
                 if event.key == pygame.K_1:
                     if secend_press == True:
                         if first_perez == False:
@@ -231,7 +231,7 @@ def main():
                     landing.update_animation()
 
         if patron <= 0:
-            pre.play()
+            # pre.play()
             if first_press == True:
                 first_perez = True
             else:
